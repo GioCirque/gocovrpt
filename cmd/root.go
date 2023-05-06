@@ -1,0 +1,163 @@
+/*
+Copyright © 2023 Gio Palacino <gio@palacino.net>
+This file is part of CLI application gocovrpt.
+*/
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+
+	"github.com/giocirque/gocovrpt/formats"
+	"github.com/giocirque/gocovrpt/lib"
+	"github.com/spf13/cobra"
+	"golang.org/x/tools/cover"
+)
+
+var rootCmd = &cobra.Command{
+	Use:   "gocovrpt",
+	Short: "Creates code coverage reports in multiple formats.",
+	Long: `gocovrpt is a CLI application that creates code coverage reports in
+	multiple formats like HTML, JSON, XML, TEXT, etc. with convenience options for
+	generating summaries, badges, and an isolated value useful in CI/CD control.
+
+	The input coverage.raw file MUST always be the last argument.
+	`,
+	Example: `  $ gocovrpt -f html -l [full|summary] -o ./coverage -i ./build/coverage.raw
+  $ gocovrpt -f json -l [full|summary] -o ./coverage.json -i ./build/coverage.raw
+  $ gocovrpt -f xml -l [full|summary] -o ./coverage.xml -i ./build/coverage.raw
+  $ gocovrpt -f badge -o ./coverage.[svg*|png|jpg] -c #00FF00 -i ./build/coverage.raw
+	$ gocovrpt -f value -o ./covered -i ./build/coverage.raw`,
+	Run: runRootCommand,
+}
+
+func init() {
+	sourceDir, err := os.Getwd()
+	if err != nil {
+		sourceDir = "."
+	}
+
+	rootCmd.Flags().StringArrayP("input", "i", []string{"./.build/coverage.raw"}, "One or more coverage.raw files to read from.")
+	rootCmd.Flags().StringP("color", "c", "", "Badge color. Any valid hex color code.")
+	rootCmd.Flags().StringP("format", "f", "html", fmt.Sprintf("Report format. Available formats: %s", AllFormatsString()))
+	rootCmd.Flags().StringP("level", "l", "full", fmt.Sprintf("Report level. Available levels: %s", AllLevelsString()))
+	rootCmd.Flags().StringP("output", "o", "./.build/coverage", "Output file or directory. For badges, the default is ./coverage.svg.")
+	rootCmd.Flags().StringP("source", "s", sourceDir, "The directory containing the covered source files.")
+	rootCmd.Flags().StringP("package", "p", "", "The directory containing the covered source files.")
+	rootCmd.Flags().Int16P("tabs", "t", 2, "The number of spaces to use for tabs in reports.")
+}
+
+func Execute() {
+	err := rootCmd.Execute()
+	lib.HandleStopError(err)
+}
+
+func runRootCommand(cmd *cobra.Command, args []string) {
+	config, err := validateArgs(cmd, args)
+	lib.HandleStopError(err)
+
+	absSourceDir, err := filepath.Abs(config.SourceDir)
+	if err != nil {
+		lib.HandleStopError(lib.UnresolvablePathError(config.SourceDir))
+	}
+	absParentRoot, err := filepath.Abs(path.Dir(config.SourceDir))
+	if err != nil {
+		lib.HandleStopError(lib.UnresolvablePathError(path.Dir(config.SourceDir)))
+	}
+
+	sharedMeta := lib.ReportMeta{
+		PackageName: config.PackageName,
+		CommonRoot:  absSourceDir,
+		ParentRoot:  absParentRoot,
+	}
+
+	context := lib.NewReportContext(config, sharedMeta, config.Level == LevelFull)
+	for _, input := range config.Input {
+		profiles, err := cover.ParseProfiles(input)
+		if err != nil {
+			lib.HandleStopError(err)
+		} else {
+			for _, profile := range profiles {
+				context.AddProfile(profile)
+			}
+		}
+	}
+	context.UpdateCoverage()
+
+	switch config.Format {
+	case FormatHtml:
+		err = formats.FormatHtml(&context)
+	}
+
+	lib.HandleStopError(err)
+}
+
+func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
+	format, err := cmd.LocalFlags().GetString("format")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+	if !IsValidFormat(format) {
+		return lib.AppConfig{}, lib.InvalidArgError("format", format, AllFormats(), lib.InvalidFormatCode)
+	}
+
+	level, err := cmd.LocalFlags().GetString("level")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+	if !IsValidLevel(level) {
+		return lib.AppConfig{}, lib.InvalidArgError("level", level, AllLevels(), lib.InvalidLevelCode)
+	}
+
+	output, err := cmd.LocalFlags().GetString("output")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+
+	input, err := cmd.LocalFlags().GetStringArray("input")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+
+	sourceDir, err := cmd.LocalFlags().GetString("source")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+
+	packageName, err := cmd.LocalFlags().GetString("package")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+	if packageName == "" {
+		fullSourcePath, _ := filepath.Abs(sourceDir)
+		packageName = path.Base(path.Dir(fullSourcePath))
+	}
+
+	color, err := cmd.LocalFlags().GetString("color")
+	if format == FormatBadge {
+		if err != nil {
+			return lib.AppConfig{}, err
+		}
+		if !lib.IsValidColor(color) {
+			return lib.AppConfig{}, lib.InvalidArgError("color", color, []string{"any valid hex color code"}, lib.InvalidColorCode)
+		}
+	}
+
+	tabSize, err := cmd.LocalFlags().GetInt16("tabs")
+	if err != nil {
+		return lib.AppConfig{}, err
+	}
+
+	return lib.AppConfig{
+		Format:      format,
+		Level:       level,
+		Output:      output,
+		Color:       color,
+		Input:       input,
+		SourceDir:   sourceDir,
+		TabSize:     int(tabSize),
+		PackageName: packageName,
+	}, nil
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>{{.DisplayPath}}</title>
+  <link href="{{.AssetsPath}}assets/highlight/styles/obsidian.min.css" rel="stylesheet" />
+  <link href="{{.AssetsPath}}assets/gocovrpt.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h1 class="package">{{.Meta.PackageName}}</h1>
+    <h2 class="path">{{range .PathParts}}<a href="{{.Path}}/index.html">{{.Name}}</a>/{{end}}{{.FileName}}</h2>
+    <div class="container meta">
+      <span class="meta data"><span class="label">
+      {{if gt (len .CoveredLines) 0}} Covers: <span class="value">{{with $firstLine := (first .CoveredLines).StartLine}}<a href="javascript:scrollToSourceLine({{$firstLine}})">#{{$firstLine}}{{end}}</a></span>
+      {{else}} Uncovered{{end}}
+      {{if gt (len .CoveredLines) 1}} -> <span class="value">{{with $lastLine := (last .CoveredLines).StopLine}}<a href="javascript:scrollToSourceLine({{$lastLine}})">#{{$lastLine}}{{end}}</a></span>{{end}}
+       @ </span><span class="value">{{printf "%.2f%%" .CoveredPct}}</span></span>
+    </div>
+    <div class="container code">
+      <pre class="line-numbers"><code class="language-go">{{ sourceCode . }}</code></pre>
+    </div>
+    <script src="{{.AssetsPath}}assets/highlight/highlight.min.js"></script>
+    <script src="{{.AssetsPath}}assets/highlight/highlightjs-line-numbers.min.js"></script>
+    <script src="{{.AssetsPath}}assets/highlight/highlightjs-highlight-lines.min.js"></script>
+    <script>
+      const colorCovered = 'rgba(0,255,0,0.15)';
+      const colorUncovered = 'rgba(255,0,0,0.15)';
+      hljs.highlightAll();
+      hljs.initLineNumbersOnLoad();
+      hljs.highlightLinesAll([[{{range .ReportedLines}}
+          { start: {{.StartLine}}, end: {{.StopLine}}, color: {{if .Covered}}colorCovered{{else}}colorUncovered{{end}} },{{end}}
+        ]]);
+      function scrollToSourceLine(line) {
+        var lineElement = document.querySelector(`td[data-line-number="${line}"]`);
+        if (lineElement) {
+          lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    </script>
+</body>
+</html>
