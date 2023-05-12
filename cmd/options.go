@@ -15,7 +15,7 @@ const (
 	LevelSummary = "summary"
 )
 
-var allFormats = []string{FormatHtml, FormatJson, FormatXml, FormatBadge}
+var allFormats = []string{FormatHtml, FormatJson, FormatXml, FormatBadge, FormatValue}
 
 func AllFormats() []string {
 	return allFormats

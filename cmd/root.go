@@ -89,6 +89,8 @@ func runRootCommand(cmd *cobra.Command, args []string) {
 	switch config.Format {
 	case FormatHtml:
 		err = formats.FormatHtml(&context)
+	case FormatValue:
+		err = formats.FormatValue(&context)
 	}
 
 	lib.HandleStopError(err)
