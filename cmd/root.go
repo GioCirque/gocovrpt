@@ -47,7 +47,6 @@ func init() {
 	rootCmd.Flags().StringP("output", "o", "./.build/coverage", "Output file or directory. For badges, the default is ./coverage.svg.")
 	rootCmd.Flags().StringP("source", "s", sourceDir, "The directory containing the covered source files.")
 	rootCmd.Flags().StringP("package", "p", "", "The directory containing the covered source files.")
-	rootCmd.Flags().Int16P("tabs", "t", 2, "The number of spaces to use for tabs in reports.")
 }
 
 func Execute() {
@@ -146,11 +145,6 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 		}
 	}
 
-	tabSize, err := cmd.LocalFlags().GetInt16("tabs")
-	if err != nil {
-		return lib.AppConfig{}, err
-	}
-
 	return lib.AppConfig{
 		Format:      format,
 		Level:       level,
@@ -158,7 +152,6 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 		Color:       color,
 		Input:       input,
 		SourceDir:   sourceDir,
-		TabSize:     int(tabSize),
 		PackageName: packageName,
 	}, nil
 }

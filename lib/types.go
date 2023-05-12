@@ -25,8 +25,6 @@ type AppConfig struct {
 	Input []string `json:"input" yaml:"input" xml:"input"`
 	// The source code folder location on disk
 	SourceDir string `json:"source" yaml:"source" xml:"source"`
-	// The number of spaces to use for indentation
-	TabSize int `json:"tabSize" yaml:"tabSize" xml:"tabSize"`
 	// The display name of the package
 	PackageName string `json:"packageName" yaml:"packageName" xml:"packageName"`
 }
@@ -68,8 +66,6 @@ type ReportContext struct {
 	IsFullReport bool `json:"isFullReport" yaml:"isFullReport" xml:"isFullReport"`
 	// The file or directory path where the output will be written
 	Output string `json:"output" yaml:"output" xml:"output"`
-	// The number of spaces to use for indentation
-	TabSize int `json:"tabSize" yaml:"tabSize" xml:"tabSize"`
 	// The coverage percentage for the entire report
 	CoveredPct float64 `json:"coveredPct" yaml:"coveredPct" xml:"coveredPct"`
 }
@@ -88,7 +84,6 @@ func NewReportContext(config AppConfig, meta ReportMeta, isFullRpt bool) ReportC
 		ReportedFolders: make([]*ReportedFolder, 0),
 		IsFullReport:    isFullRpt,
 		Output:          absOutPath,
-		TabSize:         config.TabSize,
 	}
 }
 
