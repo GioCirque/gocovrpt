@@ -60,6 +60,33 @@ func FormatHtml(context *lib.ReportContext) error {
 		return err
 	}
 
+	if context.IsFullReport {
+		return writeFullReport(context, templ)
+	} else {
+		return writeSummaryReport(context, templ)
+	}
+}
+
+func writeSummaryReport(context *lib.ReportContext, templ *template.Template) error {
+	// Write the summary report file
+	rootFolder := context.GetPseudoFolder()
+	outputFile := lib.SwapFileExt(rootFolder.OutFilePath, fileExt)
+	file, err := lib.MakeFile(outputFile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = templ.ExecuteTemplate(file, "summary.gohtml", rootFolder)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("HTML report generated at %s\n", outputFile)
+	return nil
+}
+
+func writeFullReport(context *lib.ReportContext, templ *template.Template) error {
 	// Write the file reports
 	for _, rptFile := range context.ReportedFiles {
 		outputFile := rptFile.WithExtension(fileExt)
@@ -92,10 +119,7 @@ func FormatHtml(context *lib.ReportContext) error {
 	}
 
 	// Write the root report file
-	noFiles := make([]*lib.ReportedFile, 0)
-	rootFolder := lib.NewReportedFolder(context, context.Config.SourceDir, noFiles...)
-	rootFolder.ReportedFolders = context.ReportedFolders
-	rootFolder.CoveredPct = context.CoveredPct
+	rootFolder := context.GetPseudoFolder()
 	outputFile := lib.SwapFileExt(rootFolder.OutFilePath, fileExt)
 	file, err := lib.MakeFile(outputFile)
 	if err != nil {
@@ -109,7 +133,6 @@ func FormatHtml(context *lib.ReportContext) error {
 	}
 
 	fmt.Printf("HTML report generated at %s\n", outputFile)
-
 	return nil
 }
 

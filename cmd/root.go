@@ -19,17 +19,18 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "gocovrpt",
 	Short: "Creates code coverage reports in multiple formats.",
-	Long: `gocovrpt is a CLI application that creates code coverage reports in
-	multiple formats like HTML, JSON, XML, TEXT, etc. with convenience options for
-	generating summaries, badges, and an isolated value useful in CI/CD control.
+	Long: `
+gocovrpt is a CLI application that creates code coverage reports in multiple
+formats like HTML, JSON, XML, TEXT, etc. with convenience options for generating
+summaries, badges, and an isolated value useful in CI/CD control.
 
-	The input coverage.raw file MUST always be the last argument.
-	`,
+The input file MUST always be the last argument, and can support multiples separated by a space.
+`,
 	Example: `  $ gocovrpt -f html -l [full|summary] -o ./coverage -i ./build/coverage.raw
   $ gocovrpt -f json -l [full|summary] -o ./coverage.json -i ./build/coverage.raw
   $ gocovrpt -f xml -l [full|summary] -o ./coverage.xml -i ./build/coverage.raw
   $ gocovrpt -f badge -o ./coverage.[svg*|png|jpg] -c #00FF00 -i ./build/coverage.raw
-	$ gocovrpt -f value -o ./covered -i ./build/coverage.raw`,
+  $ gocovrpt -f value -o ./covered -i ./build/coverage.raw`,
 	Run: runRootCommand,
 }
 

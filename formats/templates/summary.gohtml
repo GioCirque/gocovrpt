@@ -1,0 +1,40 @@
+{{define "folder"}}
+<div class="row folder">
+  <h3>{{.FolderName}}</h3>
+  <span class="meta"><span class="label"> {{if gt .CoveredPct 0.0}}Covered{{else}}Uncovered{{end}} @ </span><span class="value">{{printf "%.2f%%" .CoveredPct}}</span></span>
+  <div class="container children">
+    {{range .ReportedFolders}}{{template "folder" .}}
+    {{end}}
+    {{range .ReportedFiles}}{{template "file" .}}
+    {{end}}
+  </div>
+</div>
+{{end}}
+
+{{define "file"}}
+<h3 class="row file">
+  <span class="file">{{.FileName}}</span>
+  <span class="meta"><span class="label"> {{if gt .CoveredPct 0.0}}Covered{{else}}Uncovered{{end}} @ </span><span class="value">{{printf "%.2f%%" .CoveredPct}}</span></span>
+</h3>
+{{end}}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>{{.Meta.PackageName}}</title>
+  <link href="{{.AssetsPath}}assets/highlight/styles/obsidian.min.css" rel="stylesheet" />
+  <link href="{{.AssetsPath}}assets/gocovrpt.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h1 class="package">{{.Meta.PackageName}}</h1>
+    <h2 class="path">{{range .PathParts}}<a href="{{.Path}}/index.html">{{.Name}}</a>/{{end}}{{.FolderName}}</h2>
+    <div class="container meta"><span class="meta data"><span class="label"> {{if gt .CoveredPct 0.0}}Covered{{else}}Uncovered{{end}} @ </span><span class="value">{{printf "%.2f%%" .CoveredPct}}</span></span></div>
+    <div class="container children">
+      {{range .ReportedFolders}}{{template "folder" .}}
+      {{end}}
+    </div>
+</body>
+</html>

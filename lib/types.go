@@ -92,6 +92,16 @@ func NewReportContext(config AppConfig, meta ReportMeta, isFullRpt bool) ReportC
 	}
 }
 
+// GetPseudoFolder returns a ReportedFolder that represents the root folder of the source code
+func (rc *ReportContext) GetPseudoFolder() *ReportedFolder {
+	noFiles := make([]*ReportedFile, 0)
+	pseudoFolder := NewReportedFolder(rc, rc.Config.SourceDir, noFiles...)
+	pseudoFolder.ReportedFolders = rc.ReportedFolders
+	pseudoFolder.CoveredPct = rc.CoveredPct
+
+	return &pseudoFolder
+}
+
 // AddProfile add a cover.Profile to the context.ReportedFiles as a ReportedFile
 func (rc *ReportContext) AddProfile(profile *cover.Profile) {
 	reportedFile := NewReportedFile(rc, profile)
