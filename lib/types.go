@@ -17,8 +17,6 @@ type AppConfig struct {
 	Format string `json:"format" yaml:"format" xml:"format"`
 	// Whether to build a full report or summary
 	Level string `json:"level" yaml:"level" xml:"level"`
-	// If the output is a badge, this is the color to use
-	Color string `json:"color" yaml:"color" xml:"color"`
 	// The file or directory path to write the output to
 	Output string `json:"output" yaml:"output" xml:"output"`
 	// The input coverage file from `go test -coverprofile`

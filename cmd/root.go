@@ -41,10 +41,9 @@ func init() {
 	}
 
 	rootCmd.Flags().StringArrayP("input", "i", []string{"./.build/coverage.raw"}, "One or more coverage.raw files to read from.")
-	rootCmd.Flags().StringP("color", "c", "", "Badge color. Any valid hex color code.")
 	rootCmd.Flags().StringP("format", "f", "html", fmt.Sprintf("Report format. Available formats: %s", AllFormatsString()))
 	rootCmd.Flags().StringP("level", "l", "full", fmt.Sprintf("Report level. Available levels: %s", AllLevelsString()))
-	rootCmd.Flags().StringP("output", "o", "./.build/coverage", "Output file or directory. For badges, the default is ./coverage.svg.")
+	rootCmd.Flags().StringP("output", "o", "./.build/coverage", "Output file or directory. For badges, the default is ./.build/coverage.svg.")
 	rootCmd.Flags().StringP("source", "s", sourceDir, "The directory containing the covered source files.")
 	rootCmd.Flags().StringP("package", "p", "", "The directory containing the covered source files.")
 }
@@ -91,6 +90,8 @@ func runRootCommand(cmd *cobra.Command, args []string) {
 		err = formats.FormatHtml(&context)
 	case FormatValue:
 		err = formats.FormatValue(&context)
+	case FormatBadge:
+		err = formats.FormatBadge(&context)
 	}
 
 	lib.HandleStopError(err)
@@ -116,6 +117,9 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 	output, err := cmd.LocalFlags().GetString("output")
 	if err != nil {
 		return lib.AppConfig{}, err
+	} else if format == FormatBadge && !cmd.LocalFlags().Changed("output") {
+		// Badge output wasn't explicitly set, so make it an SVG path.
+		output += ".svg"
 	}
 
 	input, err := cmd.LocalFlags().GetStringArray("input")
@@ -137,21 +141,10 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 		packageName = path.Base(path.Dir(fullSourcePath))
 	}
 
-	color, err := cmd.LocalFlags().GetString("color")
-	if format == FormatBadge {
-		if err != nil {
-			return lib.AppConfig{}, err
-		}
-		if !lib.IsValidColor(color) {
-			return lib.AppConfig{}, lib.InvalidArgError("color", color, []string{"any valid hex color code"}, lib.InvalidColorCode)
-		}
-	}
-
 	return lib.AppConfig{
 		Format:      format,
 		Level:       level,
 		Output:      output,
-		Color:       color,
 		Input:       input,
 		SourceDir:   sourceDir,
 		PackageName: packageName,
