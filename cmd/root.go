@@ -27,8 +27,6 @@ summaries, badges, and an isolated value useful in CI/CD control.
 The input file MUST always be the last argument, and can support multiples separated by a space.
 `,
 	Example: `  $ gocovrpt -f html -l [full|summary] -o ./coverage -i ./.build/coverage.raw
-  $ gocovrpt -f json -l [full|summary] -o ./coverage.json -i ./.build/coverage.raw
-  $ gocovrpt -f xml -l [full|summary] -o ./coverage.xml -i ./.build/coverage.raw
   $ gocovrpt -f badge -o ./coverage.svg -i ./.build/coverage.raw
   $ gocovrpt -f value -o ./covered -i ./.build/coverage.raw`,
 	Run: runRootCommand,

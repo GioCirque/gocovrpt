@@ -30,8 +30,6 @@ Usage:
 
 Examples:
   $ gocovrpt -f html -l [full|summary] -o ./coverage -i ./.build/coverage.raw
-  $ gocovrpt -f json -l [full|summary] -o ./coverage.json -i ./.build/coverage.raw
-  $ gocovrpt -f xml -l [full|summary] -o ./coverage.xml -i ./.build/coverage.raw
   $ gocovrpt -f badge -o ./coverage.svg -i ./.build/coverage.raw
   $ gocovrpt -f value -o ./covered -i ./.build/coverage.raw
 
