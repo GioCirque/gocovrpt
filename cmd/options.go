@@ -4,8 +4,6 @@ import "strings"
 
 const (
 	FormatHtml  = "html"
-	FormatJson  = "json"
-	FormatXml   = "xml"
 	FormatBadge = "badge"
 	FormatValue = "value"
 )
@@ -15,7 +13,7 @@ const (
 	LevelSummary = "summary"
 )
 
-var allFormats = []string{FormatHtml, FormatJson, FormatXml, FormatBadge, FormatValue}
+var allFormats = []string{FormatHtml, FormatBadge, FormatValue}
 
 func AllFormats() []string {
 	return allFormats
