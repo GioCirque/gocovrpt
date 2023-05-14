@@ -8,7 +8,7 @@ import (
 )
 
 type BadgeModel struct {
-	PackageName string
+	ProjectName string
 	Percent     float64
 	Color       string
 }
@@ -27,7 +27,7 @@ func FormatBadge(context *lib.ReportContext) error {
 	}
 
 	model := BadgeModel{
-		PackageName: context.Config.PackageName,
+		ProjectName: context.Config.ProjectName,
 		Percent:     value,
 		Color:       getCoverageColor(value * 3.57),
 	}

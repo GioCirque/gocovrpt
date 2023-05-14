@@ -24,13 +24,13 @@ type AppConfig struct {
 	// The source code folder location on disk
 	SourceDir string `json:"source" yaml:"source" xml:"source"`
 	// The display name of the package
-	PackageName string `json:"packageName" yaml:"packageName" xml:"packageName"`
+	ProjectName string `json:"ProjectName" yaml:"ProjectName" xml:"ProjectName"`
 }
 
 // The basic meta data for the report
 type ReportMeta struct {
 	// The display name of the package
-	PackageName string `json:"packageName" yaml:"packageName" xml:"packageName"`
+	ProjectName string `json:"ProjectName" yaml:"ProjectName" xml:"ProjectName"`
 	// The common root directory path for all reported files
 	CommonRoot string `json:"commonRoot" yaml:"commonRoot" xml:"commonRoot"`
 	// The parent of the CommonRoot directory path

@@ -45,7 +45,7 @@ func init() {
 	rootCmd.Flags().StringP("level", "l", "full", fmt.Sprintf("Report level. Available levels: %s", AllLevelsString()))
 	rootCmd.Flags().StringP("output", "o", "./.build/coverage", "Output file or directory. For badges, the default is ./.build/coverage.svg.")
 	rootCmd.Flags().StringP("source", "s", sourceDir, "The directory containing the covered source files.")
-	rootCmd.Flags().StringP("package", "p", "", "The directory containing the covered source files.")
+	rootCmd.Flags().StringP("project", "p", "", "The name of the project.")
 }
 
 func Execute() {
@@ -67,7 +67,7 @@ func runRootCommand(cmd *cobra.Command, args []string) {
 	}
 
 	sharedMeta := lib.ReportMeta{
-		PackageName: config.PackageName,
+		ProjectName: config.ProjectName,
 		CommonRoot:  absSourceDir,
 		ParentRoot:  absParentRoot,
 	}
@@ -132,13 +132,13 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 		return lib.AppConfig{}, err
 	}
 
-	packageName, err := cmd.LocalFlags().GetString("package")
+	project, err := cmd.LocalFlags().GetString("project")
 	if err != nil {
 		return lib.AppConfig{}, err
 	}
-	if packageName == "" {
+	if project == "" {
 		fullSourcePath, _ := filepath.Abs(sourceDir)
-		packageName = path.Base(path.Dir(fullSourcePath))
+		project = path.Base(path.Dir(fullSourcePath))
 	}
 
 	return lib.AppConfig{
@@ -147,6 +147,6 @@ func validateArgs(cmd *cobra.Command, args []string) (lib.AppConfig, error) {
 		Output:      output,
 		Input:       input,
 		SourceDir:   sourceDir,
-		PackageName: packageName,
+		ProjectName: project,
 	}, nil
 }
