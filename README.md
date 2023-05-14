@@ -2,7 +2,23 @@
 
 A `go` coverage reporter.
 
+## Install
+
+```sh
+go install github.com/giocirque/gocovrpt
+```
+
+## Uninstall
+
+```sh
+rm "$(command -v gocovrpt)"
+```
+
+## Example
+
 ```text
+❯ gocovrpt -h
+
 gocovrpt is a CLI application that creates code coverage reports in multiple
 formats like HTML, JSON, XML, TEXT, etc. with convenience options for generating
 summaries, badges, and an isolated value useful in CI/CD control.
